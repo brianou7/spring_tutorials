@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ias.springboot.app.models.Client;
 import com.ias.springboot.app.services.IClientService;
@@ -41,13 +41,19 @@ public class ClientController {
 	}
 	
 	@RequestMapping(value="/save/{id}")
-	public String update(@PathVariable(value="id") Long id, Map<String, Object> model) {
+	public String update(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		Client client = null;
 		
 		if (id > 0) {
 			client = client_service.find_one(id);
+			
+			if (client == null) {
+				flash.addFlashAttribute("error", "The client ID does not exists in the database!");
+				return "redirect:/list";
+			}
 		}else {
-			return "redirect:list";
+			flash.addFlashAttribute("error", "The client ID can not be zero!");
+			return "redirect:/list";
 		}
 		
 		model.put("client", client);
@@ -56,23 +62,26 @@ public class ClientController {
 	}
 	
 	@RequestMapping(value="/save", method=RequestMethod.POST)
-	public String save(@Valid Client instance, BindingResult result, Model model, SessionStatus status) {
+	public String save(@Valid Client client, BindingResult result, Model model, RedirectAttributes flash, SessionStatus status) {
 		
 		if(result.hasErrors()) {
 			model.addAttribute("title", "Save client form");
 			return "client_save";
 		}
-		client_service.save(instance);
+		client_service.save(client);
 		status.setComplete();
+		String flashMessage = (client.getId() != null) ? "Client updated successfully!": "Client created successfully";
+		flash.addFlashAttribute("success", flashMessage);
 		return "redirect:list";
 	}
 	
 	@RequestMapping(value="/delete/{id}")
-	public String delete(@PathVariable(value="id") Long id) {
+	public String delete(@PathVariable(value="id") Long id, RedirectAttributes flash) {
 		if (id > 0) {
 			client_service.delete(id);
 		}
 		
+		flash.addFlashAttribute("success", "Client deleted successfully!");
 		return "redirect:/list";
 	}
 }
