@@ -7,7 +7,7 @@
 		<div class="card bg-ligth">
 			<div class="card-header" th:text="${title}"></div>
 			<div class="body">
-				<img th:if="${#strings.length(client.photo) > 0}" class="img-thumbnail rounded float-left" style="max-width: 25%" th:src="@{/uploads/} + ${client.photo}" th:alt="${client.photo}" />
+				<img th:if="${client.photo != null and client.photo != ''}" class="img-thumbnail rounded float-left" style="max-width: 25%" th:src="@{/uploads/} + ${client.photo}" th:alt="${client.photo}" />
 				<ul class="list-group">
 					<li class="list-group-item" th:text="${client.first_name}"></li>
 					<li class="list-group-item" th:text="${client.last_name}"></li>
