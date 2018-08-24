@@ -45,6 +45,8 @@ public class Client implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	private Date created_at;
+	
+	private String photo;
 
 	/*
 	 * @PrePersist public void pre_persist() { this.created_at = new Date(); }
@@ -88,6 +90,14 @@ public class Client implements Serializable {
 
 	public void setCreated_at(Date created_at) {
 		this.created_at = created_at;
+	}
+
+	public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
 	}
 
 	@Override

@@ -1,5 +1,9 @@
 package com.ias.springboot.app.controllers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ias.springboot.app.models.Client;
@@ -74,11 +79,28 @@ public class ClientController {
 	}
 	
 	@RequestMapping(value="/save", method=RequestMethod.POST)
-	public String save(@Valid Client client, BindingResult result, Model model, RedirectAttributes flash, SessionStatus status) {
-		
+	public String save(@Valid Client client, BindingResult result, Model model, @RequestParam("file") MultipartFile photo, RedirectAttributes flash, SessionStatus status) {
 		if(result.hasErrors()) {
 			model.addAttribute("title", "Save client form");
 			return "client_save";
+		}
+		
+		if (!photo.isEmpty()) {
+			Path resourcesDirectory = Paths.get("src//main//resources//static/uploads");
+			String rootPath = resourcesDirectory.toFile().getAbsolutePath();
+			
+			try {
+				byte[] bytes = photo.getBytes();
+				Path completePath = Paths.get(rootPath + "//" + photo.getOriginalFilename());
+				Files.write(completePath, bytes);
+				flash.addFlashAttribute("info", "Has upload correctly '" + photo.getOriginalFilename() + "'");
+				
+				client.setPhoto(photo.getOriginalFilename());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				flash.addFlashAttribute("error", "Has occured a problem, upload a valid image!");
+				e.printStackTrace();
+			}
 		}
 		client_service.save(client);
 		status.setComplete();
