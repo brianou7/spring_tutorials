@@ -5,9 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +39,7 @@ public class ClientController {
 	@Autowired
 	private IClientService client_service;
 	private static final String list_url = "/list";
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	@RequestMapping(value="/view/{id}")
 	public String view(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
@@ -99,15 +103,18 @@ public class ClientController {
 		}
 		
 		if (!photo.isEmpty()) {
-			String rootPath = "C://Temp//uploads";
+			String uniqueFilename = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+			Path rootPath = Paths.get("uploads").resolve(uniqueFilename);
+			Path rootAbsolutePath = rootPath.toAbsolutePath();
+			
+			log.info("rootPath: " + rootPath);
+			log.info("rootAbsolutePath: " + rootAbsolutePath);
 			
 			try {
-				byte[] bytes = photo.getBytes();
-				Path completePath = Paths.get(rootPath + "//" + photo.getOriginalFilename());
-				Files.write(completePath, bytes);
-				flash.addFlashAttribute("info", "Has upload correctly '" + photo.getOriginalFilename() + "'");
+				Files.copy(photo.getInputStream(), rootAbsolutePath);
+				flash.addFlashAttribute("info", "Has upload correctly '" + uniqueFilename + "'");
 				
-				client.setPhoto(photo.getOriginalFilename());
+				client.setPhoto(uniqueFilename);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				flash.addFlashAttribute("error", "Has occured a problem, upload a valid image!");
