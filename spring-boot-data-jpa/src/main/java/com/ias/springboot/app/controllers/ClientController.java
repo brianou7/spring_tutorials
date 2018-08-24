@@ -5,18 +5,24 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ias.springboot.app.models.Client;
 import com.ias.springboot.app.services.IClientService;
+import com.ias.springboot.app.util.paginator.PageRender;
 
 @Controller
 @SessionAttributes("client")
@@ -24,11 +30,17 @@ public class ClientController {
 	
 	@Autowired
 	private IClientService client_service;
+	private static final String url = "/list";
 
-	@RequestMapping(value="/list", method=RequestMethod.GET)
-	public String list(Model model) {
+	@RequestMapping(value=url, method=RequestMethod.GET)
+	public String list(@RequestParam(name="page", defaultValue="0") int page, Model model) {
+		Pageable pageRequest = new PageRequest(page, 4);
+		Page<Client> clients = client_service.find_all(pageRequest);
+		PageRender<Client> pageRender = new PageRender<Client>(url, clients);
+		
 		model.addAttribute("title", "Clients list");
-		model.addAttribute("clients", client_service.find_all());
+		model.addAttribute("clients", clients);
+		model.addAttribute("page", pageRender);
 		return "client_list";
 	}
 	
