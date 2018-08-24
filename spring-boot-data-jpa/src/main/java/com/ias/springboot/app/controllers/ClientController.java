@@ -35,13 +35,26 @@ public class ClientController {
 	
 	@Autowired
 	private IClientService client_service;
-	private static final String url = "/list";
-
-	@RequestMapping(value=url, method=RequestMethod.GET)
+	private static final String list_url = "/list";
+	
+	@RequestMapping(value="/view/{id}")
+	public String view(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
+		Client client = client_service.find_one(id);
+		
+		if (client == null) {
+			flash.addFlashAttribute("error", "The client does not exist in the database!");
+			return "redirect:/list";
+		}
+		
+		model.put("client", client);
+		model.put("title", "Client detail: " + client.getFirst_name());
+		return "client_detail";
+	}
+	@RequestMapping(value=list_url, method=RequestMethod.GET)
 	public String list(@RequestParam(name="page", defaultValue="0") int page, Model model) {
 		Pageable pageRequest = new PageRequest(page, 4);
 		Page<Client> clients = client_service.find_all(pageRequest);
-		PageRender<Client> pageRender = new PageRender<Client>(url, clients);
+		PageRender<Client> pageRender = new PageRender<Client>(list_url, clients);
 		
 		model.addAttribute("title", "Clients list");
 		model.addAttribute("clients", clients);

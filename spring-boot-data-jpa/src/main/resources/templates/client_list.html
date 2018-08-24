@@ -20,7 +20,9 @@
 					</thead>
 					<tbody>
 						<tr th:each="client: ${clients}">
-							<td th:text="${client.id}"></td>
+							<td>
+								<a th:href="@{/view/} + ${client.id}" th:text="${client.id}"></a>
+							</td>
 							<td th:text="${client.first_name}"></td>
 							<td th:text="${client.last_name}"></td>
 							<td th:text="${client.email}"></td>
