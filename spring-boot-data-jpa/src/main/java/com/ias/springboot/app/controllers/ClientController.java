@@ -1,25 +1,16 @@
 package com.ias.springboot.app.controllers;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.validation.Valid;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -36,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ias.springboot.app.models.Client;
 import com.ias.springboot.app.services.IClientService;
+import com.ias.springboot.app.services.IUploadFileService;
 import com.ias.springboot.app.util.paginator.PageRender;
 
 @Controller
@@ -44,23 +36,18 @@ public class ClientController {
 	
 	@Autowired
 	private IClientService client_service;
-	private final static String LIST_URL = "/list";
-	private final static String UPLOADS_FOLDER = "uploads";
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	
+	@Autowired
+	private IUploadFileService uploadFileService;
+	
+	private final static String LIST_URL = "/list";
+
 	@RequestMapping(value="/uploads/{filename:.+}")
 	public ResponseEntity<Resource> viewPhoto(@PathVariable String filename){
-		Path pathPhoto = Paths.get(UPLOADS_FOLDER).resolve(filename).toAbsolutePath();
-		log.info("pathPhoto: " + pathPhoto);
 		Resource resource = null;
 		
 		try {
-			resource = new UrlResource(pathPhoto.toUri());
-			
-			if (!resource.exists() || !resource.isReadable()) {
-				throw new RuntimeException("Error: Can not load the image: " + pathPhoto.toString());
-			}
+			resource = uploadFileService.load(filename);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -137,20 +124,15 @@ public class ClientController {
 					&& client.getId() > 0
 					&& client.getPhoto() != null
 					&& client.getPhoto().length() > 0) {
-				deletePhoto(client, flash);
+				uploadFileService.delete(client.getPhoto());
+				
 			}
 			
-			String uniqueFilename = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
-			Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(uniqueFilename);
-			Path rootAbsolutePath = rootPath.toAbsolutePath();
-			
-			log.info("rootPath: " + rootPath);
-			log.info("rootAbsolutePath: " + rootAbsolutePath);
+			String uniqueFilename = null;
 			
 			try {
-				Files.copy(photo.getInputStream(), rootAbsolutePath);
+				uniqueFilename = uploadFileService.copy(photo);
 				flash.addFlashAttribute("info", "Has upload correctly '" + uniqueFilename + "'");
-				
 				client.setPhoto(uniqueFilename);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -158,6 +140,7 @@ public class ClientController {
 				e.printStackTrace();
 			}
 		}
+		
 		client_service.save(client);
 		status.setComplete();
 		String flashMessage = (client.getId() != null) ? "Client updated successfully!": "Client created successfully";
@@ -171,20 +154,12 @@ public class ClientController {
 			Client client = client_service.find_one(id);
 			client_service.delete(id);
 			flash.addFlashAttribute("success", "Client deleted successfully!");
-			deletePhoto(client, flash);
-		}
-		
-		return "redirect:/list";
-	}
-	
-	private void deletePhoto(Client client, RedirectAttributes flash) {
-		Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(client.getPhoto()).toAbsolutePath();			
-		File file = rootPath.toFile();
-		
-		if (file.exists() && file.canRead()) {
-			if(file.delete()) {
+			
+			if (uploadFileService.delete(client.getPhoto())) {
 				flash.addFlashAttribute("info", "Photo " + client.getPhoto() + " deleted successfully");
 			}
 		}
+		
+		return "redirect:/list";
 	}
 }
