@@ -608,7 +608,7 @@
 											"top": 311,
 											"width": 140.54345703125,
 											"height": 13,
-											"text": "BillLine"
+											"text": "BillItem"
 										},
 										{
 											"_type": "LabelView",
@@ -1977,7 +1977,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "BillLine",
+					"name": "BillItem",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",

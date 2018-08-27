@@ -1,13 +1,18 @@
 package com.ias.springboot.app.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 //import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -21,8 +26,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Entity
 @Table(name = "clients")
 public class Client implements Serializable {
-
-	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,11 +49,18 @@ public class Client implements Serializable {
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	private Date created_at;
 	
+	@OneToMany(mappedBy="client", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	private List<Bill> bills;
+	
 	private String photo;
 
 	/*
 	 * @PrePersist public void pre_persist() { this.created_at = new Date(); }
 	 */
+	
+	public Client() {
+		this.bills = new ArrayList<Bill>();
+	}
 
 	public Long getId() {
 		return id;
@@ -100,9 +110,23 @@ public class Client implements Serializable {
 		this.photo = photo;
 	}
 
+	public List<Bill> getBills() {
+		return bills;
+	}
+
+	public void setBills(List<Bill> bills) {
+		this.bills = bills;
+	}
+
 	@Override
 	public String toString() {
 		return "Client [id=" + id + ", first_name=" + first_name + ", last_name=" + last_name + ", email=" + email
 				+ ", created_at=" + created_at + "]";
 	}
+	
+	public void addBill(Bill bill) {
+		this.bills.add(bill);
+	}
+	
+	private static final long serialVersionUID = 1L;
 }
