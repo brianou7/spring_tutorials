@@ -1,5 +1,6 @@
 package com.ias.springboot.app.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -43,12 +44,14 @@ public class ClientController {
 	
 	@Autowired
 	private IClientService client_service;
-	private static final String list_url = "/list";
+	private final static String LIST_URL = "/list";
+	private final static String UPLOADS_FOLDER = "uploads";
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	
 	@RequestMapping(value="/uploads/{filename:.+}")
 	public ResponseEntity<Resource> viewPhoto(@PathVariable String filename){
-		Path pathPhoto = Paths.get("uploads").resolve(filename).toAbsolutePath();
+		Path pathPhoto = Paths.get(UPLOADS_FOLDER).resolve(filename).toAbsolutePath();
 		log.info("pathPhoto: " + pathPhoto);
 		Resource resource = null;
 		
@@ -81,11 +84,11 @@ public class ClientController {
 		model.put("title", "Client detail: " + client.getFirst_name());
 		return "client_detail";
 	}
-	@RequestMapping(value=list_url, method=RequestMethod.GET)
+	@RequestMapping(value=LIST_URL, method=RequestMethod.GET)
 	public String list(@RequestParam(name="page", defaultValue="0") int page, Model model) {
 		Pageable pageRequest = new PageRequest(page, 4);
 		Page<Client> clients = client_service.find_all(pageRequest);
-		PageRender<Client> pageRender = new PageRender<Client>(list_url, clients);
+		PageRender<Client> pageRender = new PageRender<Client>(LIST_URL, clients);
 		
 		model.addAttribute("title", "Clients list");
 		model.addAttribute("clients", clients);
@@ -130,8 +133,15 @@ public class ClientController {
 		}
 		
 		if (!photo.isEmpty()) {
+			if (client.getId() != null
+					&& client.getId() > 0
+					&& client.getPhoto() != null
+					&& client.getPhoto().length() > 0) {
+				deletePhoto(client, flash);
+			}
+			
 			String uniqueFilename = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
-			Path rootPath = Paths.get("uploads").resolve(uniqueFilename);
+			Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(uniqueFilename);
 			Path rootAbsolutePath = rootPath.toAbsolutePath();
 			
 			log.info("rootPath: " + rootPath);
@@ -158,10 +168,23 @@ public class ClientController {
 	@RequestMapping(value="/delete/{id}")
 	public String delete(@PathVariable(value="id") Long id, RedirectAttributes flash) {
 		if (id > 0) {
+			Client client = client_service.find_one(id);
 			client_service.delete(id);
+			flash.addFlashAttribute("success", "Client deleted successfully!");
+			deletePhoto(client, flash);
 		}
 		
-		flash.addFlashAttribute("success", "Client deleted successfully!");
 		return "redirect:/list";
+	}
+	
+	private void deletePhoto(Client client, RedirectAttributes flash) {
+		Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(client.getPhoto()).toAbsolutePath();			
+		File file = rootPath.toFile();
+		
+		if (file.exists() && file.canRead()) {
+			if(file.delete()) {
+				flash.addFlashAttribute("info", "Photo " + client.getPhoto() + " deleted successfully");
+			}
+		}
 	}
 }
