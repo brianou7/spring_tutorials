@@ -73,7 +73,7 @@ public class ClientController {
 	}
 	@RequestMapping(value=LIST_URL, method=RequestMethod.GET)
 	public String list(@RequestParam(name="page", defaultValue="0") int page, Model model) {
-		Pageable pageRequest = new PageRequest(page, 4);
+		Pageable pageRequest = PageRequest.of(page, 4);
 		Page<Client> clients = client_service.find_all(pageRequest);
 		PageRender<Client> pageRender = new PageRender<Client>(LIST_URL, clients);
 		
