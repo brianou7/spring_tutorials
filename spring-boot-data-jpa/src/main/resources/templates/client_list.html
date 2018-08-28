@@ -28,6 +28,7 @@
 							<td th:text="${client.email}"></td>
 							<td th:text="${client.created_at}"></td>
 							<td>
+								<a th:href="@{/bill/form/} + ${client.id}" class="btn btn-sm btn-success">Create bill</a>
 								<a th:href="@{/save/} + ${client.id}" class="btn btn-sm btn-primary">Edit</a>
 								<a th:href="@{/delete/} + ${client.id}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure that want delete?')">Delete</a>
 							</td>

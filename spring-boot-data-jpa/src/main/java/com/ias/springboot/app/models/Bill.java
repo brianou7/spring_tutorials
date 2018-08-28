@@ -19,6 +19,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotEmpty;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -30,7 +31,9 @@ public class Bill implements Serializable {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 
+	@NotEmpty
 	private String description;
+	
 	private String observation;
 	
 	@Temporal(TemporalType.DATE)
@@ -42,7 +45,7 @@ public class Bill implements Serializable {
 	@JoinColumn(name="client_id")
 	private Client client;
 	
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL,  orphanRemoval=true)
 	@JoinColumn(name="bill_id")
 	private List<BillItem> items;
 	

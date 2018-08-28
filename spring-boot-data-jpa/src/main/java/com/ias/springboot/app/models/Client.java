@@ -117,13 +117,12 @@ public class Client implements Serializable {
 	public void setBills(List<Bill> bills) {
 		this.bills = bills;
 	}
-
+	
 	@Override
 	public String toString() {
-		return "Client [id=" + id + ", first_name=" + first_name + ", last_name=" + last_name + ", email=" + email
-				+ ", created_at=" + created_at + "]";
+		return first_name + " " + last_name;
 	}
-	
+
 	public void addBill(Bill bill) {
 		this.bills.add(bill);
 	}

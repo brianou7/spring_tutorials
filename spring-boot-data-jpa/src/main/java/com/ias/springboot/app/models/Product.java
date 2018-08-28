@@ -65,4 +65,10 @@ public class Product implements Serializable {
 	@PrePersist public void pre_persist() {
 		this.createdAt = new Date();
 	}
+
+	@Override
+	public String toString() {
+		return "Product [id=" + id + ", name=" + name + ", price=" + price + ", createdAt=" + createdAt + "]";
+	}
+	
 }

@@ -41,6 +41,14 @@ public class BillItem implements Serializable {
 		this.amount = amount;
 	}
 
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
 	public Double calculateImport() {
 		return this.amount.doubleValue() * this.product.getPrice();
 	}
