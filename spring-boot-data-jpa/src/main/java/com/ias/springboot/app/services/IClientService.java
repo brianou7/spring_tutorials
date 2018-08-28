@@ -18,6 +18,8 @@ public interface IClientService {
 	public void save(Client client);
 	
 	public Client find_one(Long id);
+	
+	public Client fetchClientByIdWithBill(Long id);
 
 	public void delete(Long id);
 	

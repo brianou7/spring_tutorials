@@ -91,4 +91,10 @@ public class ClientServiceImp implements IClientService {
 		return billDao.fetchByIdWithClientWithBillItemWithProduct(id);
 	}
 
+	@Override
+	@Transactional(readOnly=true)
+	public Client fetchClientByIdWithBill(Long id) {
+		return client_dao.fetchClientByIdWithBill(id);
+	}
+
 }
