@@ -71,7 +71,7 @@ public class ClientController {
 		model.put("title", "Client detail: " + client.getFirst_name());
 		return "client_detail";
 	}
-	@RequestMapping(value=LIST_URL, method=RequestMethod.GET)
+	@RequestMapping(value= {LIST_URL, "/"}, method=RequestMethod.GET)
 	public String list(@RequestParam(name="page", defaultValue="0") int page, Model model) {
 		Pageable pageRequest = PageRequest.of(page, 4);
 		Page<Client> clients = client_service.find_all(pageRequest);
