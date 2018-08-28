@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="layout/layout :: head"></head>
 <body>
 	<header th:replace="layout/layout :: header"></header>
@@ -7,7 +7,7 @@
 		<div class="card bg-ligth">
 			<div class="card-header" th:text="${title}"></div>
 			<div class="card-body">
-				<h4 class="card-title">
+				<h4 class="card-title" sec:authorize="hasRole('ROLE_ADMIN')">
 					<a th:href="@{/bill/form/} + ${client.id}" class="btn btn-md btn-success">Create bill</a>
 				</h4>
 				<img th:if="${client.photo != null and client.photo != ''}"
@@ -28,7 +28,7 @@
 							<th>Description</th>
 							<th>Created_at</th>
 							<th>Total</th>
-							<th>Actions</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -37,7 +37,7 @@
 							<td th:text="${bill.description}"></td>
 							<td th:text="${bill.createdAt}"></td>
 							<td th:text="${bill.total}"></td>
-							<td>
+							<td sec:authorize="hasRole('ROLE_ADMIN')">
 								<a class="btn btn-sm btn-primary" th:href="@{/bill/view/} + ${bill.id}">Detail</a>
 								<a class="btn btn-sm btn-danger" th:href="@{/bill/delete/} + ${bill.id}" onclick="return confirm('¿Are you sure that want to delete the bill?')">Delete</a>
 							</td>

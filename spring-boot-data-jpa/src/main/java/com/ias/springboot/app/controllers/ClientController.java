@@ -2,10 +2,14 @@ package com.ias.springboot.app.controllers;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -13,6 +17,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,6 +46,8 @@ import com.ias.springboot.app.util.paginator.PageRender;
 @SessionAttributes("client")
 public class ClientController {
 	
+	protected final Log logger = LogFactory.getLog(this.getClass());
+	
 	@Autowired
 	private IClientService client_service;
 	
@@ -42,6 +56,7 @@ public class ClientController {
 	
 	private final static String LIST_URL = "/list";
 
+	@Secured("ROLE_USER")
 	@RequestMapping(value="/uploads/{filename:.+}")
 	public ResponseEntity<Resource> viewPhoto(@PathVariable String filename){
 		Resource resource = null;
@@ -58,6 +73,7 @@ public class ClientController {
 				.body(resource);
 	}
 	
+	@PreAuthorize("hasRole('ROLE_USER')")
 	@RequestMapping(value="/view/{id}")
 	public String view(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		Client client = client_service.fetchClientByIdWithBill(id);// client_service.find_one(id);
@@ -71,8 +87,40 @@ public class ClientController {
 		model.put("title", "Client detail: " + client.getFirst_name());
 		return "client_detail";
 	}
+	
 	@RequestMapping(value= {LIST_URL, "/"}, method=RequestMethod.GET)
-	public String list(@RequestParam(name="page", defaultValue="0") int page, Model model) {
+	public String list(@RequestParam(name="page", defaultValue="0") int page, Model model,
+			Authentication authentication, HttpServletRequest request) {
+		if (authentication != null) {
+			logger.info("Hello authenticated user, your username is: ".concat(authentication.getName()));
+		}
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (auth != null) {
+			logger.info("Using static way SecurityContextHolder.getContext().getAuthentication(): Authenticated user, username: ".concat(auth.getName()));
+		}
+		
+		if(hasRole("ROLE_ADMIN")) {
+			logger.info("Hello ".concat(auth.getName()).concat(" have access!"));
+		}else {
+			logger.info("Hello ".concat(auth.getName()).concat(" do not have access!"));
+		}
+		
+		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request, "");
+		
+		if (securityContext.isUserInRole("ROLE_ADMIN")) {
+			logger.info("Other way using SecurityContextHolderAwareRequestWrapper: Hello username: ".concat(auth.getName()).concat(" you have access!"));
+		}else {
+			logger.info("Other way using SecurityContextHolderAwareRequestWrapper: Hello username: ".concat(auth.getName()).concat(" you don't have access!"));
+		}
+		
+		if (request.isUserInRole("ROLE_ADMIN")) {
+			logger.info("Other way using HttpServletRequest: Hello username: ".concat(auth.getName()).concat(" you have access!"));
+		}else {
+			logger.info("Other way using HttpServletRequest: Hello username: ".concat(auth.getName()).concat(" you don't have access!"));
+		}
+		
 		Pageable pageRequest = PageRequest.of(page, 4);
 		Page<Client> clients = client_service.find_all(pageRequest);
 		PageRender<Client> pageRender = new PageRender<Client>(LIST_URL, clients);
@@ -83,6 +131,7 @@ public class ClientController {
 		return "client_list";
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value="/save", method=RequestMethod.GET)
 	public String create(Map<String, Object> model) {
 		Client client = new Client();
@@ -91,6 +140,7 @@ public class ClientController {
 		return "client_save";
 	}
 	
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value="/save/{id}")
 	public String update(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		Client client = null;
@@ -161,5 +211,31 @@ public class ClientController {
 		}
 		
 		return "redirect:/list";
+	}
+	
+	private boolean hasRole(String role) {
+		SecurityContext context = SecurityContextHolder.getContext();
+		
+		if (context == null) {
+			return false;
+		}
+		
+		Authentication auth = context.getAuthentication();
+		
+		if (auth == null) {
+			return false;
+		}
+		
+		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+		return authorities.contains(new SimpleGrantedAuthority(role));
+		
+		/*for (GrantedAuthority authority: authorities) {
+			if(role.equals(authority.getAuthority())) {
+				logger.info("Hello ".concat(auth.getName()).concat(" your role is: ").concat(authority.getAuthority()));
+				return true;
+			}
+		}
+		
+		return false;*/
 	}
 }

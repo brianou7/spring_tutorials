@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="layout/layout :: head"></head>
 <body>
 	<header th:replace="layout/layout :: header"></header>
@@ -10,24 +10,24 @@
 				<table class="table table-striped">
 					<thead>
 						<tr>
-							<th>Id</th>
+							<th sec:authorize="hasRole('ROLE_USER')">Id</th>
 							<th>Fist name</th>
 							<th>Last name</th>
 							<th>Email</th>
 							<th>Created at</th>
-							<th>Actions</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="client: ${clients}">
-							<td>
+							<td sec:authorize="hasRole('ROLE_USER')">
 								<a th:href="@{/view/} + ${client.id}" th:text="${client.id}"></a>
 							</td>
 							<td th:text="${client.first_name}"></td>
 							<td th:text="${client.last_name}"></td>
 							<td th:text="${client.email}"></td>
 							<td th:text="${client.created_at}"></td>
-							<td>
+							<td sec:authorize="hasRole('ROLE_ADMIN')">
 								<a th:href="@{/bill/form/} + ${client.id}" class="btn btn-sm btn-success">Create bill</a>
 								<a th:href="@{/save/} + ${client.id}" class="btn btn-sm btn-primary">Edit</a>
 								<a th:href="@{/delete/} + ${client.id}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure that want delete?')">Delete</a>
