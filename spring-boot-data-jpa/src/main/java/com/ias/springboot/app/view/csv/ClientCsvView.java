@@ -26,13 +26,13 @@ public class ClientCsvView extends AbstractView {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		response.setHeader("Content-Disposition", "attachment; filename=\"customers.csv\"");
 		response.setContentType(this.getContentType());
 		
-		@SuppressWarnings("unchecked")
 		Page<Client> clients = (Page<Client>) model.get("clients");
 		
 		ICsvBeanWriter beanWriter = new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
