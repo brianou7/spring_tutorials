@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="layout/layout :: head"></head>
 <body>
+	<div id="i18n_delete_client" th:text="#{text.client.deleteOk}" style="display: none"></div>
 	<header th:replace="layout/layout :: header"></header>
 	<div class="container py-4">
 		<div class="card bg-ligth">
@@ -11,11 +12,11 @@
 					<thead>
 						<tr>
 							<th sec:authorize="hasRole('ROLE_USER')">Id</th>
-							<th>Fist name</th>
-							<th>Last name</th>
-							<th>Email</th>
-							<th>Created at</th>
-							<th sec:authorize="hasRole('ROLE_ADMIN')">Actions</th>
+							<th th:text="#{text.client.firstName}">Fist name</th>
+							<th th:text="#{text.client.lastName}">Last name</th>
+							<th th:text="#{text.client.email}">Email</th>
+							<th th:text="#{text.client.createdAt}">Created at</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')" th:text="#{text.global.actions}">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -28,9 +29,9 @@
 							<td th:text="${client.email}"></td>
 							<td th:text="${client.created_at}"></td>
 							<td sec:authorize="hasRole('ROLE_ADMIN')">
-								<a th:href="@{/bill/form/} + ${client.id}" class="btn btn-sm btn-success">Create bill</a>
-								<a th:href="@{/save/} + ${client.id}" class="btn btn-sm btn-primary">Edit</a>
-								<a th:href="@{/delete/} + ${client.id}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure that want delete?')">Delete</a>
+								<a th:href="@{/bill/form/} + ${client.id}" class="btn btn-sm btn-success" th:text="#{text.client.bill.create}">Create bill</a>
+								<a th:href="@{/save/} + ${client.id}" class="btn btn-sm btn-primary" th:text="#{text.client.edit}">Edit</a>
+								<a th:href="@{/delete/} + ${client.id}" class="btn btn-sm btn-danger" onclick="return confirm(document.getElementById('i18n_delete_client').innerHTML)" th:text="#{text.client.delete}">Delete</a>
 							</td>
 						</tr>
 					</tbody>

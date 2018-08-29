@@ -4,24 +4,24 @@
 	<nav th:fragment="paginator">
 		<ul class="pagination">
 			<li class="page-item" th:class="${page.first? 'page-item disabled': 'page-item'}">
-				<span class="page-link" th:if="${page.first}">First</span>
-				<a class="page-link" th:if="${not page.first}" th:href="@{${page.url}(page=0)}">First</a>
+				<span class="page-link" th:if="${page.first}" th:text="#{text.paginator.first}">First</span>
+				<a class="page-link" th:if="${not page.first}" th:href="@{${page.url}(page=0)}" th:text="#{text.paginator.first}">First</a>
 			</li>
 			<li class="page-item" th:class="${page.first? 'page-item disabled': 'page-item'}">
-				<span class="page-link" th:if="${not page.hasPrevious}">&laquo;</span>
-				<a class="page-link" th:if="${page.hasPrevious}" th:href="@{${page.url}(page=${page.currentPage-2})}">&laquo;</a>
+				<span class="page-link" th:if="${not page.hasPrevious}" th:utext="#{text.paginator.previous}">&laquo;</span>
+				<a class="page-link" th:if="${page.hasPrevious}" th:href="@{${page.url}(page=${page.currentPage-2})}" th:utext="#{text.paginator.previous}">&laquo;</a>
 			</li>
 			<li class="page-item" th:each="item: ${page.pages}" th:class="${item.current? 'page-item active': 'page-item'}">
 				<span class="page-link" th:if="${item.current}" th:text="${item.number}"></span>
 				<a class="page-link" th:if="${not item.current}" th:href="@{${page.url}(page=${item.number-1})}" th:text="${item.number}"></a>
 			</li>
 			<li class="page-item" th:class="${not page.hasNext? 'page-item disabled': 'page-item'}">
-				<span class="page-link" th:if="${not page.hasNext}">&raquo;</span>
-				<a class="page-link" th:if="${page.hasNext}" th:href="@{${page.url}(page=${page.currentPage})}">&raquo;</a>
+				<span class="page-link" th:if="${not page.hasNext}" th:utext="#{text.paginator.next}">&raquo;</span>
+				<a class="page-link" th:if="${page.hasNext}" th:href="@{${page.url}(page=${page.currentPage})}" th:utext="#{text.paginator.next}">&raquo;</a>
 			</li>
 			<li class="page-item" th:class="${page.last? 'page-item disabled': 'page-item'}">
-				<span class="page-link" th:if="${page.last}">Last</span>
-				<a class="page-link" th:if="${not page.last}" th:href="@{${page.url}(page=${page.totalPages-1})}">Last</a>
+				<span class="page-link" th:if="${page.last}" th:text="#{text.paginator.last}">Last</span>
+				<a class="page-link" th:if="${not page.last}" th:href="@{${page.url}(page=${page.totalPages-1})}" th:text="#{text.paginator.last}">Last</a>
 			</li>
 		</ul>
 		

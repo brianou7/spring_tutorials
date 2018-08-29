@@ -8,38 +8,38 @@
 			<div class="card-header" th:text="${title}"></div>
 			<div class="card-body">
 				<h4 class="card-title">
-					<a class="btn btn-sm btn-light" th:href="@{'/view/' + ${bill.client.id}}" th:text="'&laquo; volver'"></a>
+					<a class="btn btn-sm btn-light" th:href="@{'/view/' + ${bill.client.id}}" th:utext="#{text.global.back}"></a>
 				</h4>
 				
 				<form th:action="@{/bill/form/}" th:object="${bill}" method="post">
 					<div class="form-group row">	
-						<label class="col-sm-2 col-form-label" th:text="'Client'"></label>
+						<label class="col-sm-2 col-form-label" th:text="#{text.bill.form.client}">Client</label>
 						<div class="col-sm-6">
 							<input type="text" class="form-control" th:value="${bill.client.first_name} + ' ' + ${bill.client.last_name}" disabled="disabled" />
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label" th:text="'Description'"></label>
+						<label class="col-sm-2 col-form-label" th:text="#{text.bill.form.description}">Description</label>
 						<div class="col-sm-6">
 							<input type="text" th:field="*{description}" class="form-control" th:errorclass="'form-control is-invalid'"/>
 							<div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label" th:text="'Observation'"></label>
+						<label class="col-sm-2 col-form-label" th:text="#{text.bill.form.observation}">Observation</label>
 						<div class="col-sm-6">
 							<textarea th:field="*{observation}" class="form-control"></textarea>
 						</div>
 					</div>
 					<div class="form-group row">
-						<label for="search_product" class="col-sm-2 col-form-label" th:text="'Search product'"></label>
+						<label for="search_product" class="col-sm-2 col-form-label" th:text="#{text.bill.form.search}">Search product</label>
 						<div class="col-sm-6">
 							<input type="text" name="search_product" id="search_product" class="form-control"/>
 						</div>
 					</div>
 					<div class="form-group row">
 						<div class="col-sm-6">
-							<input type="submit" value="Save" class="btn bt-default" />
+							<input type="submit" th:value="#{text.bill.form.button}" class="btn bt-default" />
 						</div>
 					</div>
 					
@@ -48,17 +48,17 @@
 					<table id="loadItem" class="table table-sm table-striped table-hover">
 						<thead>
 							<tr>
-								<td>Name</td>
-								<td>Price</td>
-								<td>Amount</td>
-								<td>Total</td>
+								<td th:text="#{text.bill.form.item.name}">Name</td>
+								<td th:text="#{text.bill.form.item.price}">Price</td>
+								<td th:text="#{text.bill.form.item.amount}">Amount</td>
+								<td th:text="#{text.bill.form.item.total}">Total</td>
 								<td></td>
 							</tr>
 						</thead><tbody>
 						</tbody>
 					</table>
 					<h5>
-						Total
+						<span th:text="#{text.bill.form.total}">Total</span>
 						<span class="badge badge-secondary" id="total">0</span>
 					</h5>
 				</form>

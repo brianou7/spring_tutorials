@@ -1,6 +1,7 @@
 package com.ias.springboot.app.controllers;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -8,6 +9,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,37 +39,41 @@ public class BillController {
 	@Autowired
 	private IClientService clientService;
 	
+	@Autowired
+	private MessageSource messageSource;
+	
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	@GetMapping("/view/{id}")
-	public String view(@PathVariable(value="id") Long id, Model model, RedirectAttributes flash) {
+	public String view(@PathVariable(value="id") Long id, Model model, RedirectAttributes flash,
+			Locale locale) {
 		Bill bill = clientService.fetchBillByIdWithClientWithBillItemWithProduct(id); // clientService.findBillById(id);
 		
 		if (bill == null) {
-			flash.addAttribute("error", "The bill does not exist on database!");
+			flash.addAttribute("error", messageSource.getMessage("text.bill.db.error", null, locale));
 			return "redirect:/list";
 		}
 		
-		model.addAttribute("title", "Bill: ".concat(bill.getDescription()));
+		model.addAttribute("title", String.format(messageSource.getMessage("text.bill.view.title", null, locale), bill.getDescription()));
 		model.addAttribute("bill", bill);
 		return "bill/view";
 	}
 
 	@GetMapping("/form/{clientId}")
 	public String create(@PathVariable(value="clientId") Long clientId,
-			Map<String, Object> model,
-			RedirectAttributes flash) {
+			Map<String, Object> model, RedirectAttributes flash,
+			Locale locale) {
 		Client client = clientService.find_one(clientId);
 		
 		if(client == null && clientId > 0) {
-			flash.addFlashAttribute("error", "The client does not exist on database!");
+			flash.addFlashAttribute("error", messageSource.getMessage("text.client.flash.db.error", null, locale));
 			return "redirect:/list";
 		}
 		
 		Bill bill = new Bill();
 		bill.setClient(client);
 		model.put("bill", bill);
-		model.put("title", "Create bill");
+		model.put("title", messageSource.getMessage("text.bill.form.title", null, locale));
 		
 		return "bill/form";
 	}
@@ -82,17 +88,17 @@ public class BillController {
 			BindingResult result, Model model,
 			@RequestParam(name="item_id[]", required=false) Long[] itemId,
 			@RequestParam(name="amount[]", required=false) Integer[] amount,
-			RedirectAttributes flash, 
-			SessionStatus status) {
+			RedirectAttributes flash, SessionStatus status,
+			Locale locale) {
 		
 		if (result.hasErrors()) {
-			model.addAttribute("title", "Create bill");
+			model.addAttribute("title", messageSource.getMessage("text.bill.form.title", null, locale));
 			return "bill/form";
 		}
 		
 		if(itemId == null || itemId.length == 0) {
-			model.addAttribute("title", "Create bill");
-			model.addAttribute("error", "The bill must have items");
+			model.addAttribute("title", messageSource.getMessage("text.bill.form.title", null, locale));
+			model.addAttribute("error", messageSource.getMessage("text.bill.flash.items.error", null, locale));
 			return "bill/form";
 		}
 		
@@ -106,26 +112,25 @@ public class BillController {
 			
 			log.info("ID: " + itemId[i].toString() + ", amount: " + amount[i].toString());
 		}
-		log.info("ADADADA");
+		
 		clientService.saveBill(bill);
-		log.info("ADADADA");
 		status.setComplete();
-		flash.addFlashAttribute("success", "Bill created successfully");
+		flash.addFlashAttribute("success", messageSource.getMessage("text.bill.flash.create.success", null, locale));
 		
 		return "redirect:/view/" + bill.getClient().getId();
 	}
 	
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable(value="id") Long id,
-			RedirectAttributes flash) {
+			RedirectAttributes flash, Locale locale) {
 		Bill bill = clientService.findBillById(id);
 		
 		if (bill != null) {
 			clientService.deleteBill(id);
-			flash.addFlashAttribute("success", "Bill deleted successfully");
+			flash.addFlashAttribute("success", messageSource.getMessage("text.bill.flash.delete.success", null, locale));
 			return "redirect:/view/" + bill.getClient().getId();
 		}
-		flash.addFlashAttribute("error", "The bill does not exist on database, can not delete");
+		flash.addFlashAttribute("error", messageSource.getMessage("text.bill.flash.db.error", null, locale));
 		return "redirect:/list";
 	}
 }
