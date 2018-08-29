@@ -3,6 +3,7 @@ package com.ias.springboot.app.controllers;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -30,10 +31,12 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +46,7 @@ import com.ias.springboot.app.models.Client;
 import com.ias.springboot.app.services.IClientService;
 import com.ias.springboot.app.services.IUploadFileService;
 import com.ias.springboot.app.util.paginator.PageRender;
+import com.ias.springboot.app.view.xml.ClientList;
 
 @Controller
 @SessionAttributes("client")
@@ -92,6 +96,11 @@ public class ClientController {
 		model.put("client", client);
 		model.put("title", messageSource.getMessage("text.client.detail.title", null, locale));
 		return "client_detail";
+	}
+	
+	@GetMapping(value="/api/list")
+	public @ResponseBody ClientList listRest() {
+		return new ClientList(client_service.find_all());
 	}
 	
 	@RequestMapping(value= {LIST_URL, "/"}, method=RequestMethod.GET)

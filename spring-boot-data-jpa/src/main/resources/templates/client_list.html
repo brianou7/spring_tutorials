@@ -9,8 +9,9 @@
 			<div class="card-header" th:text="${title}"></div>
 			<div class="card-body">
 				<h4 class="card-title">
-					<a th:href="@{'/list'(format=csv)}" class="btn btn-sm btn-success float-right mx-2 my-2">CSV</a>
-					<a th:href="@{'/list'(format=xml)}" class="btn btn-sm btn-outline-success float-right my-2">XML</a>
+					<a th:href="@{'/list'(format=csv)}" class="btn btn-sm btn-success float-right mx-1 my-2">CSV</a>
+					<a th:href="@{'/list'(format=xml)}" class="btn btn-sm btn-outline-success float-right mx-1 my-2">XML</a>
+					<a th:href="@{'/list'(format=json)}" class="btn btn-sm btn-outline-warning float-right mx-1 my-2">JSON</a>
 				</h4>
 				<table class="table table-striped">
 					<thead>
