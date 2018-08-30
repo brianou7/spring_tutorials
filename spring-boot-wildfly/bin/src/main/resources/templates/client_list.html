@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout/layout :: head"></head>
+<body>
+	<header th:replace="layout/layout :: header"></header>
+	<div class="container py-4">
+		<div class="card bg-ligth">
+			<div class="card-header" th:text="${title}"></div>
+			<div class="card-body">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Id</th>
+							<th>Fist name</th>
+							<th>Last name</th>
+							<th>Email</th>
+							<th>Created at</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="client: ${clients}">
+							<td>
+								<a th:href="@{/view/} + ${client.id}" th:text="${client.id}"></a>
+							</td>
+							<td th:text="${client.first_name}"></td>
+							<td th:text="${client.last_name}"></td>
+							<td th:text="${client.email}"></td>
+							<td th:text="${client.created_at}"></td>
+							<td>
+								<a th:href="@{/save/} + ${client.id}" class="btn btn-sm btn-primary">Edit</a>
+								<a th:href="@{/delete/} + ${client.id}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure that want delete?')">Delete</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<nav th:replace="paginator-nav :: paginator"></nav>
+			</div>
+		</div>
+	</div>
+	<footer th:replace="layout/layout :: footer"></footer>
+</body>
+</html>
