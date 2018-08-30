@@ -9,8 +9,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.ias.springboot.app.auth.filter.JWTAuthFilter;
-import com.ias.springboot.app.auth.handler.LoginSuccessHandler;
+import com.ias.springboot.app.auth.filter.JWTAuthenticationFilter;
+import com.ias.springboot.app.auth.filter.JWTAuthorizationFilter;
+/*import com.ias.springboot.app.auth.handler.LoginSuccessHandler;*/
+import com.ias.springboot.app.auth.service.JWTService;
 import com.ias.springboot.app.services.JpaUserDetailService;
 
 @EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled=true)
@@ -18,7 +20,10 @@ import com.ias.springboot.app.services.JpaUserDetailService;
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
-	private LoginSuccessHandler successHandler;
+	private JWTService jwtService;
+	
+	/*@Autowired
+	private LoginSuccessHandler successHandler;*/
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -43,7 +48,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		.and()
 		.exceptionHandling().accessDeniedPage("/error403")*/
 		.and()
-		.addFilter(new JWTAuthFilter(authenticationManager()))
+		.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtService))
+		.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtService))
 		.csrf().disable()
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}

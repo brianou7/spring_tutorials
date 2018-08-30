@@ -1,6 +1,7 @@
 package com.ias.springboot.app.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ public class ClientRestController {
 	private IClientService clientService;
 
 	@GetMapping(value="/list")
+	@Secured("ROLE_ADMIN")
 	public ClientList list() {
 		return new ClientList(clientService.find_all());
 	}
