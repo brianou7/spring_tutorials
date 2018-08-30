@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="layout/layout :: head"></head>
+<body>
+	<div id="i18n_delete_bill" th:text="#{text.client.bill.deleteOk}" style="display: none"></div>
+	<header th:replace="layout/layout :: header"></header>
+	<div class="container py-4">
+		<div class="card bg-ligth">
+			<div class="card-header" th:text="${title}"></div>
+			<div class="card-body">
+				<h4 class="card-title" sec:authorize="hasRole('ROLE_ADMIN')">
+					<a th:href="@{/bill/form/} + ${client.id}" class="btn btn-md btn-success" th:text="#{text.client.bill.create}">Create bill</a>
+				</h4>
+				<img th:if="${client.photo != null and client.photo != ''}"
+					class="img-thumbnail rounded float-left" style="max-width: 25%"
+					th:src="@{/uploads/} + ${client.photo}" th:alt="${client.photo}" />
+				<ul class="list-group">
+					<li class="list-group-item" th:text="${client.first_name}"></li>
+					<li class="list-group-item" th:text="${client.last_name}"></li>
+					<li class="list-group-item" th:text="${client.email}"></li>
+					<li class="list-group-item" th:text="${client.created_at}"></li>
+				</ul>
+				<div th:if="${#lists.isEmpty(client.bills)}" class="alert alert-info my-4" th:text="#{text.client.detail.not.bills}"></div>
+				
+				<table th:if="${not #lists.isEmpty(client.bills)}" class="table table-bordered table-striped my-4">
+					<thead class="thead-inverse">
+						<tr>
+							<th th:text="#{text.client.bill.number}">Folio</th>
+							<th th:text="#{text.client.bill.description}">Description</th>
+							<th th:text="#{text.client.bill.date}">Created_at</th>
+							<th th:text="#{text.client.bill.total}">Total</th>
+							<th sec:authorize="hasRole('ROLE_ADMIN')" th:text="#{text.global.actions}">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="bill: ${client.bills}">
+							<td th:text="${bill.id}"></td>
+							<td th:text="${bill.description}"></td>
+							<td th:text="${bill.createdAt}"></td>
+							<td th:text="${bill.total}"></td>
+							<td sec:authorize="hasRole('ROLE_ADMIN')">
+								<a class="btn btn-sm btn-primary" th:href="@{/bill/view/} + ${bill.id}" th:text="#{text.client.bill.detail}">Detail</a>
+								<a class="btn btn-sm btn-danger" th:href="@{/bill/delete/} + ${bill.id}" onclick="return confirm(document.getElementById('i18n_delete_bill').innerHTML)" th:text="#{text.client.bill.delete}">Delete</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<footer th:replace="layout/layout :: footer"></footer>
+</body>
+</html>
