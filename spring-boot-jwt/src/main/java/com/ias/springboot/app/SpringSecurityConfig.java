@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.ias.springboot.app.auth.filter.JWTAuthFilter;
 import com.ias.springboot.app.auth.handler.LoginSuccessHandler;
 import com.ias.springboot.app.services.JpaUserDetailService;
 
@@ -33,15 +34,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/", "/css/**", "/js/**", "/images/**", "/list", "/locale", "/api/**").permitAll()
+		http.authorizeRequests().antMatchers("/", "/css/**", "/js/**", "/images/**", "/list", "/locale").permitAll()
 		.anyRequest().authenticated()
-		.and()
+		/*.and()
 		.formLogin().successHandler(successHandler).loginPage("/login").permitAll()
 		.and()
 		.logout().permitAll()
 		.and()
-		.exceptionHandling().accessDeniedPage("/error403")
+		.exceptionHandling().accessDeniedPage("/error403")*/
 		.and()
+		.addFilter(new JWTAuthFilter(authenticationManager()))
 		.csrf().disable()
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
